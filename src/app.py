@@ -1,28 +1,22 @@
-from flask import Flask, render_template, request
+import streamlit as st
 import numpy as np
-import pickle
+import pickle 
+from pickle import load
 
-app = Flask(__name__)
+
 model = pickle.load(open('model.pkl', 'rb'))
 
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+st.title('House Price Prediction')
 
 
-@app.route('/predict', methods=['GET', 'POST'])
-def predict():
-    val1 = request.form['bedrooms']
-    val2 = request.form['bathrooms']
-    val3 = request.form['floors']
-    val4 = request.form['yr_built']
-    arr = np.array([val1, val2, val3, val4])
-    arr = arr.astype(np.float64)
-    pred = model.predict([arr])
-
-    return render_template('index.html', data=int(pred))
+bedrooms = st.number_input('Enter number of bedrooms', min_value=0)
+bathrooms = st.number_input('Enter number of bathrooms', min_value=0)
+floors = st.number_input('Enter number of floors', min_value=0)
+yr_built = st.number_input('Enter year built', min_value=0)
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if st.button('Predict'):
+    arr = np.array([bedrooms, bathrooms, floors, yr_built]).astype(np.float64)
+    prediction = model.predict([arr])
+    st.success(f'The predicted price is: {int(prediction)}')
